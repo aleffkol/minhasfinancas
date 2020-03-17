@@ -2,14 +2,19 @@ package com.aleffkol.minhasfinancas.controller;
 
 import com.aleffkol.minhasfinancas.api.dto.UsuarioDTO;
 import com.aleffkol.minhasfinancas.exception.RegraDeNegocioException;
+import com.aleffkol.minhasfinancas.model.entity.Lancamento;
 import com.aleffkol.minhasfinancas.model.entity.Usuario;
+import com.aleffkol.minhasfinancas.service.LancamentoService;
 import com.aleffkol.minhasfinancas.service.UsuarioService;
 import lombok.RequiredArgsConstructor;
+import lombok.SneakyThrows;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.math.BigDecimal;
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/usuarios")
@@ -17,7 +22,7 @@ import java.util.List;
 public class UsuarioController {
 
     private final UsuarioService usuarioService;
-
+    private final LancamentoService lancamentoService;
 
     @PostMapping
     public ResponseEntity salvar(@RequestBody UsuarioDTO usuarioDTO){
@@ -51,5 +56,16 @@ public class UsuarioController {
     public ResponseEntity listar(){
         List<Usuario> usuarios = usuarioService.listarUsuario();
         return ResponseEntity.ok(usuarios);
+    }
+
+    @GetMapping("{id}/saldo")
+    @SneakyThrows
+    public ResponseEntity obterSaldo(@PathVariable("id") Long id){
+        Optional<Usuario> usuario = usuarioService.encontrarPorID(id);
+        if(!usuario.isPresent()){
+            return new ResponseEntity(HttpStatus.NOT_FOUND);
+        }
+        BigDecimal saldo = lancamentoService.obterSaldoPorUsuario(id);
+        return ResponseEntity.ok(saldo);
     }
 }

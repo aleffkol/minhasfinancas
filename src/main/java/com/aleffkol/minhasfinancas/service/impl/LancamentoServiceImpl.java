@@ -3,6 +3,7 @@ package com.aleffkol.minhasfinancas.service.impl;
 import com.aleffkol.minhasfinancas.exception.RegraDeNegocioException;
 import com.aleffkol.minhasfinancas.model.entity.Lancamento;
 import com.aleffkol.minhasfinancas.model.enums.StatusLancamento;
+import com.aleffkol.minhasfinancas.model.enums.TipoLancamento;
 import com.aleffkol.minhasfinancas.model.repository.LancamentoRepository;
 import com.aleffkol.minhasfinancas.service.LancamentoService;
 import org.springframework.data.domain.Example;
@@ -90,5 +91,22 @@ public class LancamentoServiceImpl implements LancamentoService {
     @Override
     public Optional<Lancamento> encontrarPorID(Long id) {
         return lancamentoRepository.findById(id);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public BigDecimal obterSaldoPorUsuario(Long id) {
+        BigDecimal receitas = lancamentoRepository.obterSaldoPorTipoLancamentoEUsuario(id, TipoLancamento.RECEITA);
+        BigDecimal despesas =lancamentoRepository.obterSaldoPorTipoLancamentoEUsuario(id, TipoLancamento.DESPESA);
+        if(receitas==null){
+            receitas = BigDecimal.ZERO;
+        }
+        if(despesas==null){
+            despesas = BigDecimal.ZERO;
+        }
+
+
+        BigDecimal saldo = receitas.subtract(despesas);
+        return saldo;
     }
 }

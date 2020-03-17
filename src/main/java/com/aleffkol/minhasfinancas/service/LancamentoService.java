@@ -3,6 +3,7 @@ package com.aleffkol.minhasfinancas.service;
 import com.aleffkol.minhasfinancas.model.entity.Lancamento;
 import com.aleffkol.minhasfinancas.model.enums.StatusLancamento;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
 
@@ -20,4 +21,6 @@ public interface LancamentoService {
     void validar(Lancamento lancamento);
 
     Optional<Lancamento> encontrarPorID(Long id);
+
+    BigDecimal obterSaldoPorUsuario(Long id);
 }

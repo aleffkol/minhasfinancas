@@ -1,5 +1,6 @@
 package com.aleffkol.minhasfinancas.controller;
 
+import com.aleffkol.minhasfinancas.api.dto.AtualizaStatusDTO;
 import com.aleffkol.minhasfinancas.api.dto.LancamentoDTO;
 import com.aleffkol.minhasfinancas.exception.RegraDeNegocioException;
 import com.aleffkol.minhasfinancas.model.entity.Lancamento;
@@ -74,6 +75,20 @@ public class LancamentoController {
                 return ResponseEntity.badRequest().body(e.getMessage());
             }
 
+        }).orElseGet(()-> new ResponseEntity("Lançamento não encotrado no banco de dados", HttpStatus.BAD_REQUEST));
+    }
+
+    @PutMapping("{id}/atualiza-status")
+    @SneakyThrows
+    public ResponseEntity atualizarStatus(@PathVariable("id") Long id, @RequestBody AtualizaStatusDTO atualizaStatusDTO){
+        return lancamentoService.encontrarPorID(id).map(entity -> {
+               StatusLancamento statusSelecionado = StatusLancamento.valueOf(atualizaStatusDTO.getStatusLancamento());
+               if(statusSelecionado==null){
+                   return ResponseEntity.badRequest().body("Não foi possível atualizar o status do lançamento. \nEnvie um status válido");
+               }
+               entity.setStatusLancamento(statusSelecionado);
+               lancamentoService.atualizar(entity);
+               return ResponseEntity.ok(entity);
         }).orElseGet(()-> new ResponseEntity("Lançamento não encotrado no banco de dados", HttpStatus.BAD_REQUEST));
     }
 
